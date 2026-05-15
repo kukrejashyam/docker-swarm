@@ -6,9 +6,9 @@ This lab demonstrates:
 - Manager & Worker Node Architecture
 - Overlay Networking
 - Service Replication
-- Container Placement Constraints
+- Placement Constraints
 - Docker Stack Deployment
-- Scaling Services in Swarm
+- Service Scaling in Docker Swarm
 
 ---
 
@@ -22,12 +22,71 @@ This lab demonstrates:
 
 ---
 
-# Architecture
+# Lab Architecture
 
 | Service | Replicas | Runs On |
 |----------|-----------|----------|
 | MongoDB | 1 | Worker Node |
 | Mongo Express | 3 | Worker Node |
+
+---
+
+# Important - Open Required Security Group Ports
+
+Before starting Docker Swarm setup, ensure the following ports are allowed between Manager and Worker nodes.
+
+---
+
+# MANAGER NODE - Inbound Rules
+
+| Port | Protocol | Purpose |
+|------|-----------|----------|
+| 2377 | TCP | Swarm Cluster Management |
+| 7946 | TCP/UDP | Node Communication |
+| 4789 | UDP | Overlay Network Traffic |
+| 8081 | TCP | Mongo Express UI Access |
+| 22 | TCP | SSH Access |
+
+---
+
+# WORKER NODE - Inbound Rules
+
+| Port | Protocol | Purpose |
+|------|-----------|----------|
+| 7946 | TCP/UDP | Node Communication |
+| 4789 | UDP | Overlay Network Traffic |
+| 8081 | TCP | Mongo Express UI Access |
+| 27017 | TCP | MongoDB Access |
+| 22 | TCP | SSH Access |
+
+---
+
+# Recommended Security Group Source
+
+For lab/demo purposes:
+
+- Allow traffic from the same Security Group
+OR
+- Allow traffic from Manager/Worker private IP range
+
+Example:
+
+```text
+172.31.0.0/16
+```
+
+---
+
+# Important Ports Explained
+
+## Port 2377
+Used by Worker Nodes to join the Swarm cluster.
+
+## Port 7946
+Used for communication between Docker nodes.
+
+## Port 4789
+Used for Overlay Networking traffic between containers across nodes.
 
 ---
 
@@ -105,7 +164,18 @@ yyyyyy                        worker-node    Ready     Active
 
 ---
 
-# Step 5 - Deploy Docker Stack
+# Step 5 - Clone Repository on Manager Node
+
+## Run ONLY on MANAGER NODE
+
+```bash
+git clone <YOUR_GITHUB_REPO_URL>
+cd docker-swarm
+```
+
+---
+
+# Step 6 - Deploy Docker Stack
 
 ## Run ONLY on MANAGER NODE
 
@@ -123,7 +193,7 @@ Creating service mongo-stack_mongo-express
 
 ---
 
-# Step 6 - Verify Services
+# Step 7 - Verify Services
 
 ## Run ONLY on MANAGER NODE
 
@@ -141,9 +211,9 @@ xxxxx           mongo-stack_mongo-express     replicated  3/3
 
 ---
 
-# Step 7 - Verify Containers Running on Worker Node
+# Step 8 - Verify Service Placement
 
-## Run on MANAGER NODE
+## Run ONLY on MANAGER NODE
 
 ```bash
 docker service ps mongo-stack_mongodb
@@ -159,7 +229,7 @@ Observe:
 
 ---
 
-# Step 8 - Verify Running Containers
+# Step 9 - Verify Running Containers
 
 ## Run ONLY on WORKER NODE
 
@@ -173,12 +243,12 @@ Expected Observation:
 
 ---
 
-# Step 9 - Access Mongo Express UI
+# Step 10 - Access Mongo Express UI
 
-## Open Browser
+Open browser:
 
 ```bash
-http://<WORKER_NODE_IP>:8081
+http://<WORKER_NODE_PUBLIC_IP>:8081
 ```
 
 Login Credentials:
@@ -189,7 +259,7 @@ Login Credentials:
 
 ---
 
-# Step 10 - Scale Services
+# Step 11 - Scale Services
 
 ## Run ONLY on MANAGER NODE
 
@@ -213,7 +283,7 @@ mongo-stack_mongo-express   replicated   5/5
 
 ---
 
-# Step 11 - Verify Scaling
+# Step 12 - Verify Scaling
 
 ## Run ONLY on WORKER NODE
 
@@ -226,7 +296,7 @@ Observe:
 
 ---
 
-# Step 12 - Inspect Overlay Network
+# Step 13 - Inspect Overlay Network
 
 ## Run ONLY on MANAGER NODE
 
@@ -249,7 +319,7 @@ Observe:
 
 ---
 
-# Step 13 - Remove Stack
+# Step 14 - Remove Stack
 
 ## Run ONLY on MANAGER NODE
 
@@ -259,7 +329,7 @@ docker stack rm mongo-stack
 
 ---
 
-# Step 14 - Leave Swarm (Optional Cleanup)
+# Step 15 - Leave Swarm (Optional Cleanup)
 
 ## Run ONLY on WORKER NODE
 
@@ -274,19 +344,6 @@ docker swarm leave
 ```bash
 docker swarm leave --force
 ```
-
----
-
-# Important Concepts Demonstrated
-
-## Docker Swarm Features
-- Swarm Manager
-- Worker Nodes
-- Desired State
-- Self Healing
-- Replication
-- Load Balancing
-- Overlay Networking
 
 ---
 
@@ -356,6 +413,15 @@ docker logs <container-id>
 
 # Troubleshooting
 
+## Worker Node Unable to Join Swarm
+
+Check:
+- Port 2377 open on Manager Node
+- Security Group configured correctly
+- Manager private IP reachable from Worker
+
+---
+
 ## Service Stuck at 0 Replicas
 
 Check:
@@ -368,22 +434,23 @@ Check:
 ## Mongo Express Not Opening
 
 Check:
-- Port 8081 allowed in Security Group / Firewall
+- Port 8081 allowed in Security Group
 - Service is running
-- Worker node IP is correct
+- Correct public IP used
 
 ---
 
-# Learning Outcome
+# Learning Outcomes
 
 By completing this lab, students will understand:
 
 - Docker Swarm Cluster Setup
 - Multi-node Container Orchestration
 - Service Replication
-- Stack Deployment
+- Docker Stack Deployment
 - Overlay Networking
 - Placement Constraints
 - Scaling Applications in Swarm
+- Manager vs Worker Node Responsibilities
 
 ---
