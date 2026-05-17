@@ -102,7 +102,7 @@ cd docker-swarm
 Example:
 
 ```bash
-git clone https://github.com/yourusername/docker-swarm.git
+git clone https://github.com/kukrejashyam/docker-swarm.git
 cd docker-swarm
 ```
 
